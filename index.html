@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TERMINAL // CORSÁRIO CARMESIM</title>
+  <title>TERMINAL: NAVE</title>
   <style>
     :root {
       --green: #00ff66;
@@ -44,7 +44,6 @@
       pointer-events: none;
     }
 
-    /* Botão de controle de áudio */
     .audio-control {
       position: absolute;
       top: 15px;
@@ -99,7 +98,6 @@
       font-style: italic;
     }
 
-    /* Cursor piscante de terminal */
     .cursor {
       display: inline-block;
       width: 8px;
@@ -212,20 +210,20 @@
       <label for="passcode">> INSIRA A CHAVE DE ACESSO (4 DÍGITOS):</label>
       <div class="input-group">
         <input type="text" id="passcode" maxlength="4" placeholder="____" autocomplete="off">
-        <button class="btn-submit" onclick="verificarCodigo()">DECIFRAR</button>
+        <button class="btn-submit" onclick="verificarCodigo()">DECODIFICAR</button>
       </div>
       <div id="status-msg"></div>
     </div>
 
     <div id="success-screen" class="success">
-      <p><strong>[ACESSO CONCEDIDO: COFRE DESBLOQUEADO]</strong></p>
-      <p style="margin-top: 8px;">> COORDENADAS EXTRAÍDAS: MEGANAUSOBERANA-SETOR-0</p>
-      <p>> CARGA: CÓDICES PROIBIDOS DESTINADOS À HARMONIZAÇÃO DE AZATHOTH.</p>
+      <p><strong>[ACESSO CONCEDIDO: DADOS LIBERADOS]</strong></p>
+      <p style="margin-top: 8px;">> COORDENADAS EXTRAÍDAS: NAV_SOB_XXXXXXX</p>
+      <p>> CARGA: CÓDIGO DE HARMONIZAÇÃO - O IDIOTA - </p>
     </div>
   </div>
 
   <script>
-    const mensagemLog = `"Os ângulos deste convés... eles não fecham em 180 graus. A relíquia trancada no cofre canta em quatro frequências:\n\n• I: O número de vértices de uma esfera no vazio.\n• II: O número orbital do asteroide onde selamos o contrato do bar.\n• III: O ciclo de pulso deste reator em colapso.\n• IV: O olho central que tudo observa no abismo."`;
+    const mensagemLog = `"Os ângulos deste convés... eles não fecham em 180 graus. TESTE TESTE TESTE:\n\n• I: O número de vértices de uma esfera no vazio.\n• II: O número orbital do asteroide onde selamos o contrato do bar.\n• III: O XXXXXXXXXXXXXXXXX em colapso.\n• IV: O olho central que tudo observa no abismo."`;
 
     const elementoTexto = document.getElementById("typewriter-text");
     let indiceCaractere = 0;
