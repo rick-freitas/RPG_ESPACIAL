@@ -8,7 +8,6 @@
     :root {
       --green: #00ff66;
       --green-dim: #008833;
-      --bg: #050d08;
       --red: #ff3333;
     }
 
@@ -19,7 +18,12 @@
     }
 
     body {
-      background-color: var(--bg);
+      background-color: #050d08;
+      /* Imagem de fundo com camada escura para manter legibilidade */
+      background-image: linear-gradient(rgba(2, 8, 4, 0.85), rgba(2, 8, 4, 0.85)), url('bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
       color: var(--green);
       font-family: 'Courier New', Courier, monospace;
       min-height: 100vh;
@@ -30,26 +34,51 @@
       overflow-x: hidden;
     }
 
-    /* Efeito de linhas CRT */
+    /* Linhas de varredura CRT */
     body::before {
       content: " ";
       position: fixed;
       top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
       background-size: 100% 4px;
       z-index: 10;
       pointer-events: none;
     }
 
+    /* Botão de controle de áudio no topo */
+    .audio-control {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 20;
+    }
+
+    .audio-btn {
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: inherit;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .audio-btn:hover {
+      background: rgba(0, 255, 102, 0.2);
+    }
+
     .terminal-container {
       width: 100%;
       max-width: 650px;
-      background: #020603;
+      background: rgba(2, 6, 3, 0.92);
       border: 2px solid var(--green);
-      box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.25);
       padding: 24px;
       border-radius: 4px;
       position: relative;
+      backdrop-filter: blur(4px);
     }
 
     .header {
@@ -62,9 +91,9 @@
     }
 
     .log-entry {
-      background: rgba(0, 255, 102, 0.03);
+      background: rgba(0, 255, 102, 0.04);
       border-left: 3px solid var(--green);
-      padding: 12px;
+      padding: 14px;
       margin-bottom: 24px;
       font-size: 0.95rem;
       line-height: 1.6;
@@ -97,7 +126,7 @@
       font-size: 1.2rem;
       padding: 10px;
       outline: none;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       text-transform: uppercase;
     }
 
@@ -105,7 +134,7 @@
       box-shadow: 0 0 8px var(--green);
     }
 
-    button {
+    .btn-submit {
       background: var(--green);
       color: #000;
       border: none;
@@ -117,7 +146,7 @@
       transition: all 0.2s;
     }
 
-    button:hover {
+    .btn-submit:hover {
       background: #fff;
       box-shadow: 0 0 10px #fff;
     }
@@ -132,9 +161,10 @@
     .success {
       color: var(--green);
       border: 1px solid var(--green);
-      padding: 12px;
+      padding: 14px;
       background: rgba(0, 255, 102, 0.1);
       display: none;
+      line-height: 1.5;
     }
 
     .error {
@@ -142,7 +172,16 @@
     }
   </style>
 </head>
-<body>
+<body onclick="iniciarAudioAutomatico()">
+
+  <!-- Áudio em Loop -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="theme.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="audio-control">
+    <button id="toggle-audio" class="audio-btn" onclick="toggleAudio(event)">[ SOM: OFF ]</button>
+  </div>
 
   <div class="terminal-container">
     <div class="header">
@@ -163,7 +202,7 @@
       <label for="passcode">> INSIRA A CHAVE DE ACESSO (4 DÍGITOS):</label>
       <div class="input-group">
         <input type="text" id="passcode" maxlength="4" placeholder="____" autocomplete="off">
-        <button onclick="verificarCodigo()">DECIFRAR</button>
+        <button class="btn-submit" onclick="verificarCodigo()">DECIFRAR</button>
       </div>
       <div id="status-msg"></div>
     </div>
@@ -176,24 +215,35 @@
   </div>
 
   <script>
-    // Configuração do código correto (Exemplo: 0 1 7 1)
     const CODIGO_CORRETO = "0171";
+    const audio = document.getElementById('bg-music');
+    const audioBtn = document.getElementById('toggle-audio');
+    let audioIniciado = false;
 
-    // Efeito sonoro sintetizado no navegador
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playBeep(freq, type, duration) {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+    // Tenta iniciar no primeiro clique em qualquer lugar da tela
+    function iniciarAudioAutomatico() {
+      if (!audioIniciado) {
+        audio.volume = 0.4;
+        audio.play().then(() => {
+          audioIniciado = true;
+          audioBtn.innerText = "[ SOM: ON ]";
+        }).catch(() => {
+          // Bloqueado pelo navegador até interação direta no botão
+        });
       }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function toggleAudio(e) {
+      e.stopPropagation(); // Não dispara o clique do body
+      if (audio.paused) {
+        audio.volume = 0.4;
+        audio.play();
+        audioBtn.innerText = "[ SOM: ON ]";
+        audioIniciado = true;
+      } else {
+        audio.pause();
+        audioBtn.innerText = "[ SOM: OFF ]";
+      }
     }
 
     function verificarCodigo() {
@@ -202,12 +252,9 @@
       const successScreen = document.getElementById('success-screen');
 
       if (input === CODIGO_CORRETO) {
-        playBeep(880, 'sine', 0.5);
-        setTimeout(() => playBeep(1760, 'sine', 0.8), 200);
         status.innerHTML = "";
         successScreen.style.display = "block";
       } else {
-        playBeep(120, 'sawtooth', 0.4);
         status.className = "error";
         status.innerText = "> ERRO: CHAVE INCORRETA. ASSINATURA DE FREQUÊNCIA INVÁLIDA.";
       }
